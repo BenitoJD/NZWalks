@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NZWalksAPI.Data;
 using NZWalksAPI.Models.Domain;
 using NZWalksAPI.Models.DTO;
+using NZWalksAPI.Repositories;
+using System.Globalization;
 
 namespace NZWalksAPI.Controllers
 {
@@ -11,103 +15,63 @@ namespace NZWalksAPI.Controllers
     public class RegionsController : ControllerBase
     {
         private readonly NZWalksDbContext dbContext;
+        private readonly IRegionRepository regionRepository;
+        private readonly IMapper mapper;
 
-        public RegionsController(NZWalksDbContext dbContext)
+        public RegionsController(NZWalksDbContext dbContext, IRegionRepository regionRepository,IMapper mapper)
         {
             this.dbContext = dbContext;
+            this.regionRepository = regionRepository;
+            this.mapper = mapper;
         }
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-
-            var region = dbContext.Regions.ToList();
-
-            var regionsDto = new List<RegionDto>();
-
-            foreach (var regionDto in region) {
-                regionsDto.Add(new RegionDto()
-                {
-                    Id = regionDto.Id,
-                    Code = regionDto.Code,
-                    Name = regionDto.Name,
-                    RegionImageUrl  = regionDto.RegionImageUrl,
-
-                });
-            }
+            var region = await regionRepository.GetAllAsync();
+          
+            var regionsDto =  mapper.Map<List<RegionDto>>(region);
 
             return Ok(regionsDto);
         }
 
         [HttpGet]
         [Route("{id:guid}")]
-        public IActionResult GetRegionById(Guid id)
+        public async Task<IActionResult> GetRegionById(Guid id)
         {
-            var regionDomain = dbContext.Regions.FirstOrDefault(x=>x.Id == id);
+            var regionDomain = await regionRepository.GetByIdAsync(id);
 
             if (regionDomain == null)
             {
                 return NotFound();
-            }
-            
-              var regionDto = new RegionDto()
-                {
-                    Id = regionDomain.Id,
-                    Code = regionDomain.Code,
-                    Name = regionDomain.Name,
-                    RegionImageUrl = regionDomain.RegionImageUrl,
-
-                };
-            
+            }            
+            var regionDto = mapper.Map<RegionDto> (regionDomain);           
             return Ok(regionDto);
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody]AddRegionDto addRegionDto)
+        public async Task<IActionResult> Create([FromBody]AddRegionDto addRegionDto)
         {
-            var regionDomainModel = new Region
-            {
-                Code = addRegionDto.Code,
-                Name = addRegionDto.Name,
-                RegionImageUrl = addRegionDto.RegionImageUrl
-            };
-
-            dbContext.Regions.Add(regionDomainModel);
-            dbContext.SaveChanges();
-            var regionDto = new RegionDto
-            {
-                Id = regionDomainModel.Id,
-                Code = regionDomainModel.Code,
-                Name = regionDomainModel.Name,
-                RegionImageUrl = regionDomainModel.RegionImageUrl,
-            };
+            var regionDomainModel = mapper.Map<Region>(addRegionDto);
+            regionDomainModel = await regionRepository.CreateAsync(regionDomainModel);
+            var regionDto = mapper.Map<RegionDto>(regionDomainModel);
             return CreatedAtAction(nameof(GetRegionById), new { id = regionDto.Id }, regionDto);
         }
 
         [HttpPut]
         [Route("{id:guid}")]
-        public IActionResult update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto)
+        public async Task<IActionResult> update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto)
         {
-           var regoinDomainModel =  dbContext.Regions.FirstOrDefault(x => x.Id == id);
+            var regoinDomainModel = mapper.Map<Region>(updateRegionRequestDto);
+
+            regoinDomainModel =  await regionRepository.UpdateAsync(id, regoinDomainModel);
+
             if(regoinDomainModel == null)
             {
                 return NotFound();
             }
+          
 
-            
-             regoinDomainModel.Code = updateRegionRequestDto.Code;
-             regoinDomainModel.Name = updateRegionRequestDto.Name;
-             regoinDomainModel.RegionImageUrl = updateRegionRequestDto.RegionImageUrl;
-
-            dbContext.SaveChanges();
-
-            var regionDto = new RegionDto
-            {
-                Id = regoinDomainModel.Id,
-                Code = regoinDomainModel.Code,
-                Name = regoinDomainModel.Name,
-                RegionImageUrl = regoinDomainModel?.RegionImageUrl,
-            };
-
+            var regionDto = mapper.Map<RegionDto>(regoinDomainModel);
             return Ok(regionDto);
 
 
@@ -115,24 +79,16 @@ namespace NZWalksAPI.Controllers
 
         [HttpDelete]
         [Route("{id:guid}")]
-        public IActionResult Delete([FromRoute]Guid id)
+        public async Task<IActionResult> Delete([FromRoute]Guid id)
         {
-            var regionExist = dbContext.Regions.FirstOrDefault(x => x.Id == id);
 
-            if(regionExist == null)
+            var regionExist = await regionRepository.DeleteAsync(id);
+            if (regionExist == null)
             {
                 return NotFound();
             }
 
-            dbContext.Regions.Remove(regionExist);
-            dbContext.SaveChanges();
-            var regionDto = new RegionDto
-            {
-                Id = regionExist.Id,
-                Code = regionExist.Code,
-                Name = regionExist.Name,
-                RegionImageUrl = regionExist.RegionImageUrl,
-            };
+            var regionDto = mapper.Map<RegionDto>(regionExist);
             return Ok(regionDto);
         }
     }
