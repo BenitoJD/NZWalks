@@ -17,13 +17,22 @@ namespace NZWalksAPI.Repositories
             await dbContext.walks.AddAsync(walk);
             await dbContext.SaveChangesAsync();
             return walk;
-
         }
 
         public async Task<List<Walk>> GetallAsync()
         {
-          return await dbContext.walks.ToListAsync();
+          return await dbContext.walks
+                .Include("Difficulty")
+                .Include("Region")
+                .ToListAsync();
+        }
 
+        public async Task<Walk?> GetByIdAsync(Guid id)
+        {
+            return await dbContext.walks
+                .Include("Difficulty")
+                .Include("Region")
+                .FirstOrDefaultAsync(x=>x.Id == id);       
         }
     }
 }

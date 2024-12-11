@@ -9,5 +9,8 @@
         public double WalkImageUrl { get; set; }
         public Guid DifficultyId { get; set; }
         public Guid RegionId { get; set; }
+
+        public required RegionDto Region { get; set; }
+        public required DifficultyDto Difficulty { get; set; }
     }
 }
