@@ -1,4 +1,6 @@
-﻿namespace NZWalksAPI.Models.DTO
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace NZWalksAPI.Models.DTO
 {
     public class RegionDto
     {

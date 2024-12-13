@@ -47,7 +47,7 @@ namespace NZWalksAPI.Repositories
         public async Task<Region?> UpdateAsync(Guid id, Region region)
         {
             var exisitingRegion = await dbContext.Regions.FirstOrDefaultAsync(x=>x.Id == id);
-            if (exisitingRegion != null)
+            if (exisitingRegion == null)
             {
                 return null;
             }
