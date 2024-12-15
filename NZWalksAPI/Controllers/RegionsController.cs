@@ -27,7 +27,7 @@ namespace NZWalksAPI.Controllers
             this.mapper = mapper;
         }
         [HttpGet]
-        [Authorize(Roles ="READER")]
+        [Authorize(Roles ="READER,WRITER")]
         public async Task<IActionResult> GetAll()
         {
             var region = await regionRepository.GetAllAsync();
