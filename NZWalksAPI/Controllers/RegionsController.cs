@@ -84,7 +84,6 @@ namespace NZWalksAPI.Controllers
         [HttpPut]
         [Route("{id:guid}")]
         [Authorize(Roles = "WRITER")]
-
         public async Task<IActionResult> update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto)
         {
             var regoinDomainModel = mapper.Map<Region>(updateRegionRequestDto);
@@ -106,7 +105,6 @@ namespace NZWalksAPI.Controllers
         [HttpDelete]
         [Route("{id:guid}")]
         [Authorize(Roles = "WRITER")]
-
         public async Task<IActionResult> Delete([FromRoute]Guid id)
         {
 

@@ -28,7 +28,7 @@ namespace NZWalksAPI.Middleware
                 httpContent.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 httpContent.Response.ContentType = "application/json";
 
-                var error = new
+                var error = new 
                 {
                     Id = errorID,
                     ErrorMessage = "Something went wrong we are looking into resolving this",
