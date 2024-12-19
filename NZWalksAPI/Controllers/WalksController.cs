@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using NZWalksAPI.Models.Domain;
 using NZWalksAPI.Models.DTO;
 using NZWalksAPI.Repositories;
+using System.Net;
 
 namespace NZWalksAPI.Controllers
 {
@@ -13,11 +14,13 @@ namespace NZWalksAPI.Controllers
     {
         private readonly IMapper mapper;
         private readonly IWalkRepository walkRepository;
+        private readonly ILogger<WalksController> logger;
 
-        public WalksController(IMapper mapper, IWalkRepository walkRepository)
+        public WalksController(IMapper mapper, IWalkRepository walkRepository, ILogger<WalksController> logger)
         {
             this.mapper = mapper;
             this.walkRepository = walkRepository;
+            this.logger = logger;
         }
 
 
@@ -43,11 +46,14 @@ namespace NZWalksAPI.Controllers
         public async Task<IActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQuery,
             [FromQuery] string? sortBy, [FromQuery] bool? IsAscending, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 1000)
         {
-           var walksDomainModel =  await walkRepository.GetallAsync(filterOn,filterQuery,sortBy, IsAscending ?? true, pageNumber,pageSize);
+            
+                var walksDomainModel = await walkRepository.GetallAsync(filterOn, filterQuery, sortBy, IsAscending ?? true, pageNumber, pageSize);
 
-            // Map Domain Model to Dto
+                // Map Domain Model to Dto
 
-            return Ok(mapper.Map<List<WalkDto>>(walksDomainModel));
+                return Ok(mapper.Map<List<WalkDto>>(walksDomainModel));
+            
+          
         }
 
         //Get Walk by ID
