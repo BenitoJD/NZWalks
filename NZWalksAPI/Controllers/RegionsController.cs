@@ -84,7 +84,7 @@ namespace NZWalksAPI.Controllers
         [HttpPut]
         [Route("{id:guid}")]
       //  [Authorize(Roles = "WRITER")]
-        public async Task<IActionResult> update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto)
+        public async Task<IActionResult> update([FromRoute] Guid id, [FromBody] AddRegionDto updateRegionRequestDto)
         {
             var regoinDomainModel = mapper.Map<Region>(updateRegionRequestDto);
 
